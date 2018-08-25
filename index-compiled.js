@@ -96,6 +96,119 @@
 "use strict";
 
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _path = __webpack_require__(/*! path */ "path");
+
+var _path2 = _interopRequireDefault(_path);
+
+var _nightmare = __webpack_require__(/*! nightmare */ "nightmare");
+
+var _nightmare2 = _interopRequireDefault(_nightmare);
+
+var _pMapSeries = __webpack_require__(/*! p-map-series */ "p-map-series");
+
+var _pMapSeries2 = _interopRequireDefault(_pMapSeries);
+
+var _download = __webpack_require__(/*! download */ "download");
+
+var _download2 = _interopRequireDefault(_download);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+__webpack_require__(/*! dotenv */ "dotenv").config();
+
+const nightmare = (0, _nightmare2.default)({ show: true });
+const videoLinkSelector = '.table-of-contents__clip-list-item a';
+
+nightmare.goto('https://app.pluralsight.com/id/').insert('#Username', process.env.EMAIL).insert('#Password', process.env.PASSWORD).click('#login').wait(1000).goto(process.env.COURSE_TO_SCRAPE).wait(3000).evaluate(function () {
+  return getVideoPageDetails(document);
+}, getVideoPageDetails).then(function (videos) {
+  return (0, _pMapSeries2.default)(videos, getVideoSrcUrls);
+}).then(function (videos) {
+  return (0, _pMapSeries2.default)(videos, downloadVideo);
+}).catch(function (e) {
+  return console.log(e);
+});
+
+function getVideoPageDetails(document) {
+  var _ref;
+
+  const courseTitle = document.title.replace(" | Pluralsight", "");
+  return [...(_ref = document.querySelectorAll(videoLinkSelector), _ref === void 0 ? [] : _ref)].map(function (videoLink) {
+    return {
+      videoName: videoLink.textContent.replace(/[^a-z]/ig, ""), // so safe filename
+      videoPageUrl: videoLink.href,
+      courseTitle
+    };
+  }).filter(function (video) {
+    return video.videoPageUrl;
+  });
+}function getVideoSrcUrls(video) {
+  return nightmare.goto(video.videoPageUrl).wait("video").wait(1500).evaluate(function () {
+    return document.querySelector("video").src;
+  }).then(function (videoSrcUrl) {
+    return _extends({}, video, { videoSrcUrl });
+  });
+}function downloadVideo({ videoSrcUrl, courseTitle, videoName }) {
+  return (0, _download2.default)(videoSrcUrl, _path2.default.join('videos', courseTitle), { filename: videoName });
+}
+
+/***/ }),
+
+/***/ "dotenv":
+/*!*************************!*\
+  !*** external "dotenv" ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("dotenv");
+
+/***/ }),
+
+/***/ "download":
+/*!***************************!*\
+  !*** external "download" ***!
+  \***************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("download");
+
+/***/ }),
+
+/***/ "nightmare":
+/*!****************************!*\
+  !*** external "nightmare" ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("nightmare");
+
+/***/ }),
+
+/***/ "p-map-series":
+/*!*******************************!*\
+  !*** external "p-map-series" ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("p-map-series");
+
+/***/ }),
+
+/***/ "path":
+/*!***********************!*\
+  !*** external "path" ***!
+  \***********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("path");
+
 /***/ })
 
 /******/ });

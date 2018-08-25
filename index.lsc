@@ -1,0 +1,60 @@
+
+require('dotenv').config()
+
+import path from 'path'
+
+import Nightmare from 'nightmare'
+import pMapSeries from 'p-map-series'
+import download from 'download'
+
+nightmare = Nightmare({ show: true })
+videoLinkSelector = '.table-of-contents__clip-list-item a'
+
+nightmare
+  .goto('https://app.pluralsight.com/id/')
+  .insert('#Username', process.env.EMAIL)
+  .insert('#Password', process.env.PASSWORD)
+  .click('#login')
+  .wait(1000)
+  .goto(process.env.COURSE_TO_SCRAPE)
+  .wait(3000)
+  .evaluate(() -> getVideoPageDetails(document), getVideoPageDetails)
+  .then(videos ->
+    pMapSeries(
+      videos,
+      getVideoSrcUrls
+    )
+  )
+  .then(videos ->
+      pMapSeries(
+      videos,
+      downloadVideo
+    )
+  )
+  .catch(e -> console.log(e))
+
+getVideoPageDetails(document) ->
+  courseTitle = document.title.replace(" | Pluralsight", "")
+  [...document.querySelectorAll(videoLinkSelector)]
+  .map(videoLink ->
+    {
+      videoName: videoLink.textContent.replace(/[^a-z]/ig, ""), // so safe filename
+      videoPageUrl: videoLink.href,
+      courseTitle
+    }
+  )
+  .filter(video -> video.videoPageUrl)
+
+getVideoSrcUrls(video):Promise ->
+  nightmare.goto(video.videoPageUrl)
+    .wait("video")
+    .wait(1500)
+    .evaluate(() -> document.querySelector("video").src)
+    .then(videoSrcUrl -> {...video, videoSrcUrl})
+
+downloadVideo({videoSrcUrl, courseTitle, videoName}):Promise ->
+  download(
+    videoSrcUrl,
+    path.join('videos', courseTitle),
+    { filename: videoName }
+  )
