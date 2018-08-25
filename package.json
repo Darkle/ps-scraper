@@ -1,0 +1,36 @@
+{
+  "name": "ps-scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "ww": "cross-env NODE_ENV=development webpack --watch --max-retries=1 --no-stats",
+    "debug": "cross-env NODE_ENV=development webpack && node --inspect index-compiled.js",
+    "start": "cross-env NODE_ENV=production && node index-compiled.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Darkle/ps-scraper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Darkle/ps-scraper/issues"
+  },
+  "homepage": "https://github.com/Darkle/ps-scraper#readme",
+  "devDependencies": {
+    "@oigroup/babel-preset-lightscript": "^3.1.1",
+    "@oigroup/lightscript-eslint": "^3.1.1",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "cross-env": "^5.2.0",
+    "eslint": "^5.4.0",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "dependencies": {
+    "dotenv": "^6.0.0"
+  }
+}
