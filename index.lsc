@@ -4,11 +4,18 @@ require('dotenv').config()
 import path from 'path'
 
 import Nightmare from 'nightmare'
-import pMapSeries from 'p-map-series'
+import pMap from 'p-map'
 import download from 'download'
+import ora from 'ora'
+import delay from 'delay'
 
 nightmare = Nightmare({ show: true })
-videoLinkSelector = '.table-of-contents__clip-list-item a'
+numDownloadsAtATime = Number(process.env.NUM_DOWNLOADS_AT_A_TIME) || 1
+useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'
+
+let numberOfVideos = 0
+
+spinner = ora('Logging in').start()
 
 nightmare
   .goto('https://app.pluralsight.com/id/')
@@ -18,43 +25,63 @@ nightmare
   .wait(1000)
   .goto(process.env.COURSE_TO_SCRAPE)
   .wait(3000)
-  .evaluate(() -> getVideoPageDetails(document), getVideoPageDetails)
+  .evaluate(() ->
+    courseTitle = document.title.replace(" | Pluralsight", "")
+    [...document.querySelectorAll('.table-of-contents__clip-list-item a')]
+    .map(videoLink ->
+      {
+        videoName: videoLink.textContent.replace(/[^a-z ]/ig, ""), // so safe filename
+        videoPageUrl: videoLink.href,
+        courseTitle
+      }
+    )
+    .filter(video -> video.videoPageUrl.length > 0)
+  )
   .then(videos ->
-    pMapSeries(
+    now numberOfVideos = videos.length
+    spinner.text = 'Scraping video links'
+    pMap(
       videos,
-      getVideoSrcUrls
+      getVideoSrcUrls,
+      {concurrency: 1}
     )
   )
   .then(videos ->
-      pMapSeries(
+    pMap(
       videos,
-      downloadVideo
+      downloadVideo,
+      {concurrency: numDownloadsAtATime}
     )
   )
   .catch(e -> console.log(e))
 
-getVideoPageDetails(document) ->
-  courseTitle = document.title.replace(" | Pluralsight", "")
-  [...document.querySelectorAll(videoLinkSelector)]
-  .map(videoLink ->
-    {
-      videoName: videoLink.textContent.replace(/[^a-z]/ig, ""), // so safe filename
-      videoPageUrl: videoLink.href,
-      courseTitle
-    }
+getVideoSrcUrls(video, index):Promise ->
+  randomDelay().then(() ->
+    spinner.text = `Scraping [${ index + 1 }/${ numberOfVideos }]: ${ video.videoName }`
+    nightmare
+      .useragent(useragent)
+      .goto(video.videoPageUrl)
+      .wait("video")
+      .wait(1500)
+      .evaluate(() -> document.querySelector("video").src)
+      .then(videoSrcUrl -> {...video, videoSrcUrl})
   )
-  .filter(video -> video.videoPageUrl)
 
-getVideoSrcUrls(video):Promise ->
-  nightmare.goto(video.videoPageUrl)
-    .wait("video")
-    .wait(1500)
-    .evaluate(() -> document.querySelector("video").src)
-    .then(videoSrcUrl -> {...video, videoSrcUrl})
-
-downloadVideo({videoSrcUrl, courseTitle, videoName}):Promise ->
-  download(
-    videoSrcUrl,
-    path.join('videos', courseTitle),
-    { filename: videoName }
+downloadVideo({videoSrcUrl, courseTitle, videoName}, index):Promise ->
+  randomDelay().then(() ->
+    spinner.text = `Downloading [${ index + 1 }/${ numberOfVideos }]: ${ videoName }`
+    download(
+      videoSrcUrl,
+      path.join('videos', courseTitle),
+      { filename: `${ index + 1 }. ${ videoName }.webm` }
+    )
+    .then(() ->
+      spinner.text = `Download [${ index + 1 }/${ numberOfVideos }]: ${ videoName } completed`
+    )
   )
+
+randomDelay():Promise ->
+  delay(getRandomInt(1, 15) * 1000)
+
+getRandomInt(min, max) ->
+  Math.floor(Math.random() * (max - min + 1)) + min
