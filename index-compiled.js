@@ -126,7 +126,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 __webpack_require__(/*! dotenv */ "dotenv").config();
 
-const nightmare = (0, _nightmare2.default)({ show: true });
+const nightmare = (0, _nightmare2.default)({ show: false });
 const numDownloadsAtATime = Number(process.env.NUM_DOWNLOADS_AT_A_TIME) || 1;
 const useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36';
 

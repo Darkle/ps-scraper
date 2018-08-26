@@ -9,7 +9,7 @@ import download from 'download'
 import ora from 'ora'
 import delay from 'delay'
 
-nightmare = Nightmare({ show: true })
+nightmare = Nightmare({ show: false })
 numDownloadsAtATime = Number(process.env.NUM_DOWNLOADS_AT_A_TIME) || 1
 useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36'
 
