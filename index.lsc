@@ -53,6 +53,7 @@ nightmare
       {concurrency: numDownloadsAtATime}
     )
   )
+  .end()
   .catch(e -> console.log(e))
 
 getVideoSrcUrls(video, index):Promise ->
