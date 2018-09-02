@@ -54,7 +54,11 @@ nightmare
     )
   )
   .then(() -> nightmare.end())
-  .catch(e -> console.log(e))
+  .then(() -> process.exit(0))
+  .catch(e => {
+    console.log(e)
+    process.exit(1)
+  })
 
 getVideoSrcUrls(video, index):Promise ->
   randomDelay().then(() ->

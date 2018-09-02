@@ -155,8 +155,11 @@ nightmare.goto('https://app.pluralsight.com/id/').insert('#Username', process.en
   return (0, _pMap2.default)(videos, downloadVideo, { concurrency: numDownloadsAtATime });
 }).then(function () {
   return nightmare.end();
-}).catch(function (e) {
-  return console.log(e);
+}).then(function () {
+  return process.exit(0);
+}).catch(e => {
+  console.log(e);
+  return process.exit(1);
 });
 
 function getVideoSrcUrls(video, index) {
