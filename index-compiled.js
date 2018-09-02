@@ -153,7 +153,9 @@ nightmare.goto('https://app.pluralsight.com/id/').insert('#Username', process.en
   return (0, _pMap2.default)(videos, getVideoSrcUrls, { concurrency: 1 });
 }).then(function (videos) {
   return (0, _pMap2.default)(videos, downloadVideo, { concurrency: numDownloadsAtATime });
-}).end().catch(function (e) {
+}).then(function () {
+  return nightmare.end();
+}).catch(function (e) {
   return console.log(e);
 });
 
