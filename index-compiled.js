@@ -81,16 +81,11 @@
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./index.lsc");
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
-/******/ ({
-
-/***/ "./index.lsc":
-/*!*******************!*\
-  !*** ./index.lsc ***!
-  \*******************/
-/*! no static exports found */
+/******/ ([
+/* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -98,33 +93,33 @@
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-var _path = __webpack_require__(/*! path */ "path");
+var _path = __webpack_require__(1);
 
 var _path2 = _interopRequireDefault(_path);
 
-var _nightmare = __webpack_require__(/*! nightmare */ "nightmare");
+var _nightmare = __webpack_require__(2);
 
 var _nightmare2 = _interopRequireDefault(_nightmare);
 
-var _pMap = __webpack_require__(/*! p-map */ "p-map");
+var _pMap = __webpack_require__(3);
 
 var _pMap2 = _interopRequireDefault(_pMap);
 
-var _download = __webpack_require__(/*! download */ "download");
+var _download = __webpack_require__(4);
 
 var _download2 = _interopRequireDefault(_download);
 
-var _ora = __webpack_require__(/*! ora */ "ora");
+var _ora = __webpack_require__(5);
 
 var _ora2 = _interopRequireDefault(_ora);
 
-var _delay = __webpack_require__(/*! delay */ "delay");
+var _delay = __webpack_require__(6);
 
 var _delay2 = _interopRequireDefault(_delay);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-__webpack_require__(/*! dotenv */ "dotenv").config();
+__webpack_require__(7).config();
 
 const nightmare = (0, _nightmare2.default)({ show: false });
 const numDownloadsAtATime = Number(process.env.NUM_DOWNLOADS_AT_A_TIME) || 1;
@@ -137,7 +132,7 @@ const spinner = (0, _ora2.default)('Logging in').start();
 nightmare.goto('https://app.pluralsight.com/id/').insert('#Username', process.env.EMAIL).insert('#Password', process.env.PASSWORD).click('#login').wait(1000).goto(process.env.COURSE_TO_SCRAPE).wait(3000).evaluate(function () {
   var _ref;
 
-  const courseTitle = document.title.replace(" | Pluralsight", "");
+  const courseTitle = document.title.replace(" | Pluralsight", "").replace(/[^a-z ]/ig, ""); // so safe foldername
   return [...(_ref = document.querySelectorAll('.table-of-contents__clip-list-item a'), _ref === void 0 ? [] : _ref)].map(function (videoLink) {
     return {
       videoName: videoLink.textContent.replace(/[^a-z ]/ig, ""), // so safe filename
@@ -185,83 +180,46 @@ function getVideoSrcUrls(video, index) {
 }
 
 /***/ }),
-
-/***/ "delay":
-/*!************************!*\
-  !*** external "delay" ***!
-  \************************/
-/*! no static exports found */
+/* 1 */
 /***/ (function(module, exports) {
 
-module.exports = require("delay");
+module.exports = require("path");
 
 /***/ }),
-
-/***/ "dotenv":
-/*!*************************!*\
-  !*** external "dotenv" ***!
-  \*************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = require("dotenv");
-
-/***/ }),
-
-/***/ "download":
-/*!***************************!*\
-  !*** external "download" ***!
-  \***************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = require("download");
-
-/***/ }),
-
-/***/ "nightmare":
-/*!****************************!*\
-  !*** external "nightmare" ***!
-  \****************************/
-/*! no static exports found */
+/* 2 */
 /***/ (function(module, exports) {
 
 module.exports = require("nightmare");
 
 /***/ }),
-
-/***/ "ora":
-/*!**********************!*\
-  !*** external "ora" ***!
-  \**********************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = require("ora");
-
-/***/ }),
-
-/***/ "p-map":
-/*!************************!*\
-  !*** external "p-map" ***!
-  \************************/
-/*! no static exports found */
+/* 3 */
 /***/ (function(module, exports) {
 
 module.exports = require("p-map");
 
 /***/ }),
-
-/***/ "path":
-/*!***********************!*\
-  !*** external "path" ***!
-  \***********************/
-/*! no static exports found */
+/* 4 */
 /***/ (function(module, exports) {
 
-module.exports = require("path");
+module.exports = require("download");
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+module.exports = require("ora");
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = require("delay");
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports) {
+
+module.exports = require("dotenv");
 
 /***/ })
-
-/******/ });
-//# sourceMappingURL=index-compiled.js.map
+/******/ ]);
