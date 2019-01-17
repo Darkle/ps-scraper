@@ -97,29 +97,37 @@ var _path = __webpack_require__(1);
 
 var _path2 = _interopRequireDefault(_path);
 
-var _nightmare = __webpack_require__(2);
+var _os = __webpack_require__(2);
+
+var _os2 = _interopRequireDefault(_os);
+
+var _nightmare = __webpack_require__(3);
 
 var _nightmare2 = _interopRequireDefault(_nightmare);
 
-var _pMap = __webpack_require__(3);
+var _pMap = __webpack_require__(4);
 
 var _pMap2 = _interopRequireDefault(_pMap);
 
-var _download = __webpack_require__(4);
+var _download = __webpack_require__(5);
 
 var _download2 = _interopRequireDefault(_download);
 
-var _ora = __webpack_require__(5);
+var _ora = __webpack_require__(6);
 
 var _ora2 = _interopRequireDefault(_ora);
 
-var _delay = __webpack_require__(6);
+var _delay = __webpack_require__(7);
 
 var _delay2 = _interopRequireDefault(_delay);
 
+var _spawnPromise = __webpack_require__(8);
+
+var _spawnPromise2 = _interopRequireDefault(_spawnPromise);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-__webpack_require__(7).config();
+__webpack_require__(9).config();
 
 const nightmare = (0, _nightmare2.default)({ show: false });
 const numDownloadsAtATime = Number(process.env.NUM_DOWNLOADS_AT_A_TIME) || 1;
@@ -150,11 +158,11 @@ nightmare.goto('https://app.pluralsight.com/id/').insert('#Username', process.en
   return (0, _pMap2.default)(videos, downloadVideo, { concurrency: numDownloadsAtATime });
 }).then(function () {
   return nightmare.end();
-}).then(function () {
+}).then(notifyFinishedOnWindows).then(function () {
   return process.exit(0);
 }).catch(e => {
-  console.log(e);
-  return process.exit(1);
+  console.error(e);
+  return notifyFinishedOnWindows().then(() => process.exit(1));
 });
 
 function getVideoSrcUrls(video, index) {
@@ -177,6 +185,11 @@ function getVideoSrcUrls(video, index) {
   return (0, _delay2.default)(getRandomInt(1, 15) * 1000);
 }function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}function notifyFinishedOnWindows() {
+  if (_os2.default.platform() === 'win32') {
+    const psfile = _path2.default.join(__dirname, 'win-tts-notify.ps1');
+    return (0, _spawnPromise2.default)('powershell.exe', [psfile]);
+  }return Promise.resolve();
 }
 
 /***/ }),
@@ -189,34 +202,46 @@ module.exports = require("path");
 /* 2 */
 /***/ (function(module, exports) {
 
-module.exports = require("nightmare");
+module.exports = require("os");
 
 /***/ }),
 /* 3 */
 /***/ (function(module, exports) {
 
-module.exports = require("p-map");
+module.exports = require("nightmare");
 
 /***/ }),
 /* 4 */
 /***/ (function(module, exports) {
 
-module.exports = require("download");
+module.exports = require("p-map");
 
 /***/ }),
 /* 5 */
 /***/ (function(module, exports) {
 
-module.exports = require("ora");
+module.exports = require("download");
 
 /***/ }),
 /* 6 */
 /***/ (function(module, exports) {
 
-module.exports = require("delay");
+module.exports = require("ora");
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports) {
+
+module.exports = require("delay");
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports) {
+
+module.exports = require("@ahmadnassri/spawn-promise");
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports) {
 
 module.exports = require("dotenv");

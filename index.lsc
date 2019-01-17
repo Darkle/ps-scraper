@@ -2,12 +2,14 @@
 require('dotenv').config()
 
 import path from 'path'
+import os from 'os'
 
 import Nightmare from 'nightmare'
 import pMap from 'p-map'
 import download from 'download'
 import ora from 'ora'
 import delay from 'delay'
+import spawn from '@ahmadnassri/spawn-promise'
 
 nightmare = Nightmare({ show: false })
 numDownloadsAtATime = Number(process.env.NUM_DOWNLOADS_AT_A_TIME) || 1
@@ -54,10 +56,12 @@ nightmare
     )
   )
   .then(() -> nightmare.end())
+  .then(notifyFinishedOnWindows)
   .then(() -> process.exit(0))
   .catch(e => {
-    console.log(e)
-    process.exit(1)
+    console.error(e)
+    notifyFinishedOnWindows()
+      .then(() => process.exit(1))
   })
 
 getVideoSrcUrls(video, index):Promise ->
@@ -90,3 +94,9 @@ randomDelay():Promise ->
 
 getRandomInt(min, max) ->
   Math.floor(Math.random() * (max - min + 1)) + min
+
+notifyFinishedOnWindows() ->
+  if os.platform() === 'win32':
+    psfile = path.join(__dirname, 'win-tts-notify.ps1')
+    return spawn('powershell.exe', [psfile])
+  Promise.resolve()
