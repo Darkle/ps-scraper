@@ -29,7 +29,7 @@ nightmare
   .wait(3000)
   .evaluate(() ->
     courseTitle = document.title.replace(" | Pluralsight", "").replace(/[^a-z ]/ig, "") // so safe foldername
-    [...document.querySelectorAll('.table-of-contents__clip-list-item a')]
+    [...document.querySelectorAll('a[class^="clipListTitle"')]
     .map(videoLink ->
       {
         videoName: videoLink.textContent.replace(/[^a-z ]/ig, ""), // so safe filename

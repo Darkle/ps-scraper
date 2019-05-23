@@ -141,7 +141,7 @@ nightmare.goto('https://app.pluralsight.com/id/').insert('#Username', process.en
   var _ref;
 
   const courseTitle = document.title.replace(" | Pluralsight", "").replace(/[^a-z ]/ig, ""); // so safe foldername
-  return [...(_ref = document.querySelectorAll('.table-of-contents__clip-list-item a'), _ref === void 0 ? [] : _ref)].map(function (videoLink) {
+  return [...(_ref = document.querySelectorAll('a[class^="clipListTitle"'), _ref === void 0 ? [] : _ref)].map(function (videoLink) {
     return {
       videoName: videoLink.textContent.replace(/[^a-z ]/ig, ""), // so safe filename
       videoPageUrl: videoLink.href,
